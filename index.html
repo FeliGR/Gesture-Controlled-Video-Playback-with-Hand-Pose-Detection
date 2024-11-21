@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title></title>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+<head>
+  <title></title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest" type="text/javascript"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
-  </head>
-  <body>
-    <section>
-      <div>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
 
-        <!--https://www.pexels.com/video/montana-aventura-drone-video-vista-de-drone-4585175/-->
-        <video muted controls autoplay>
-          <source src="video.mp4" type="video/mp4">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest" type="text/javascript"></script>
 
-        </video>
-      </div>
-    </section>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+</head>
 
-    <script src="index.js"></script>
-  </body>
+<body>
+  <section>
+    <div>
+      <canvas id="canvas" width="252" height="252"> </canvas>
+      <video playsinline muted id="webcam" width="252px" height="252px"></video>
+    </div>
+    <div>
+      <!--https://www.pexels.com/video/montana-aventura-drone-video-vista-de-drone-4585175/-->
+      <video id="drone-video" muted controls autoplay>
+        <source src="video.mp4" type="video/mp4">
+      </video>
+    </div>
+  </section>
+
+  <script src="index.js"></script>
+</body>
+
 </html>
-
-
-
-
