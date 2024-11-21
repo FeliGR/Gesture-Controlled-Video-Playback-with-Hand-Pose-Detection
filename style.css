@@ -1,0 +1,30 @@
+/* Styles for screens wider than 768px (tablets and desktops) */
+@media (min-width: 768px) {
+  .container {
+    width: 750px;
+    padding: 20px;
+  }
+}
+
+/* Styles for screens narrower than 768px (phones) */
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+body {
+  font-family: helvetica, arial, sans-serif;
+  margin: 2em;
+}
+
+h1 {
+  font-style: italic;
+  color: #ff6f00;
+}
+
+video {
+  width: 100%;
+  height: auto;
+}
