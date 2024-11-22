@@ -1,43 +1,161 @@
+/* Root variables and theme */
+:root {
+  --neon-blue: #00f3ff;
+  --neon-pink: #ff00ff;
+  --cyber-yellow: #f0db4f;
+  --bg-dark: #0a0a0a;
+  --bg-light: rgba(255, 255, 255, 0.05);
+}
+
 /* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
+  font-family: 'Orbitron', sans-serif;
+  background: var(--bg-dark);
   color: white;
+  min-height: 100vh;
+  overflow-x: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  overflow: hidden;
 }
 
-section.main-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-/* Webcam and Canvas Container */
-.video-container {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-video#webcam {
-  position: absolute;
-  transform: scaleX(-1);
+/* Background Animation */
+.background-animation {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  background: linear-gradient(45deg, #000000, #1a1a1a);
+  z-index: -1;
+  animation: gradientBG 15s ease infinite;
+}
+
+/* Main Container */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1400px;
+  padding: 2rem;
+}
+
+/* Header Styles */
+.header {
+  text-align: center;
+  width: 100%;
+}
+
+.title-container {
+  margin-bottom: 2rem;
+}
+
+.cyber-title {
+  font-size: 3.5rem;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  letter-spacing: 2px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  color: var(--cyber-yellow);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.pulse {
+  width: 12px;
+  height: 12px;
+  background: var(--cyber-yellow);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 20px var(--cyber-yellow);
+}
+
+/* Instructions Grid */
+.instructions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+  margin: 2rem auto;
+}
+
+.instruction-card {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid var(--neon-blue);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+.instruction-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
+  border-color: var(--neon-pink);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px var(--neon-blue);
+}
+
+/* Video Containers */
+.video-container {
+  position: relative;
+  width: 480px;
+  height: 480px;
   border-radius: 20px;
-  z-index: 1;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+}
+
+.drone-video-container {
+  width: 640px;
+  height: 360px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+video#webcam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
   object-fit: cover;
+  z-index: 1;
+}
+
+video#drone-video {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
 }
 
 canvas {
@@ -50,71 +168,110 @@ canvas {
   z-index: 2;
 }
 
-/* Drone Video */
-.drone-video-container {
-  width: 640px;
-  height: 360px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+/* Cyberpunk Border Effects */
+.cyberpunk-border {
+  position: relative;
+  border: 2px solid var(--neon-blue);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
 }
 
-video#drone-video {
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
+.corner-decoration {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--neon-pink);
+  box-shadow: 0 0 15px var(--neon-pink);
+}
+
+.top-left {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+
+/* Animations */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+  0% { 
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(240, 219, 79, 0.7);
+  }
+  70% { 
+    opacity: 0.7;
+    box-shadow: 0 0 0 10px rgba(240, 219, 79, 0);
+  }
+  100% { 
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(240, 219, 79, 0);
+  }
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  section.main-container {
-      gap: 10px;
+@media (max-width: 1024px) {
+  .main-container {
+    padding: 1rem;
   }
-
+  
+  .cyber-title {
+    font-size: 2.5rem;
+  }
+  
   .video-container {
-      width: 200px;
-      height: 200px;
+    width: 400px;
+    height: 400px;
   }
-
+  
   .drone-video-container {
-      width: 90%;
-      height: auto;
+    width: 480px;
+    height: 270px;
   }
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: white;
-}
-
-.instructions {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  border-radius: 10px;
-  margin: 0 auto;
-  max-width: 600px;
-}
-
-.instructions h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: white;
-}
-
-.instructions ul {
-  list-style: none;
-  padding: 0;
-}
-
-.instructions li {
-  margin: 0.5rem 0;
-  color: white;
-  font-size: 1.1rem;
+@media (max-width: 768px) {
+  .instructions-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .video-container {
+    width: 340px;
+    height: 340px;
+  }
+  
+  .drone-video-container {
+    width: 90%;
+    height: auto;
+  }
+  
+  .cyber-title {
+    font-size: 2rem;
+  }
 }

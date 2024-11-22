@@ -1,38 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>Hand Gesture Detection</title>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+  <title>AI Hand Gesture Controller</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
 </head>
+
 <body>
-    <section class="main-container">
-        <div class="header">
-            <h1>Hand Gesture Video Controller</h1>
-            <div class="instructions">
-                <h2>How to interact:</h2>
-                <ul>
-                    <li>✊ Make a fist to pause/hide the video</li>
-                    <li>👋 Show open palm to resume video</li>
-                    <li>Your hand movements will be tracked in real-time</li>
-                </ul>
-            </div>
+  <div class="background-animation"></div>
+  <section class="main-container">
+    <div class="header">
+      <div class="title-container">
+        <h1 class="cyber-title">AI Hand Gesture Controller</h1>
+        <div class="status-indicator">
+          <span class="pulse"></span>
+          System Active
         </div>
-        <div class="video-container">
-            <video id="webcam" width="300" height="300" autoplay playsinline muted></video>
-            <canvas id="canvas" width="300" height="300"></canvas>
+      </div>
+      <div class="instructions-grid">
+        <div class="instruction-card">
+          <div class="card-icon">✊</div>
+          <h3>Fist Gesture</h3>
+          <p>Make a fist to pause and hide video playback</p>
         </div>
-        <div class="drone-video-container">
-            <video id="drone-video" width="640" height="360" muted controls autoplay>
-                <source src="video.mp4" type="video/mp4">
-            </video>
+        <div class="instruction-card">
+          <div class="card-icon">👋</div>
+          <h3>Open Palm</h3>
+          <p>Show your palm to resume video playback</p>
         </div>
-    </section>
-    <script src="index.js"></script>
+        <div class="instruction-card">
+          <div class="card-icon">🎯</div>
+          <h3>Real-time Tracking</h3>
+          <p>Your hand movements are tracked instantly</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="video-container cyberpunk-border">
+
+      <video id="webcam" width="300" height="300" autoplay playsinline muted></video>
+      <canvas id="canvas" width="300" height="300"></canvas>
+
+      <div class="scanner-line"></div>
+    </div>
+
+    <div class="drone-video-container cyberpunk-border">
+
+      <video id="drone-video" width="640" height="360" muted controls autoplay>
+        <source src="video.mp4" type="video/mp4">
+      </video>
+
+    </div>
+  </section>
+  <script src="index.js"></script>
 </body>
+
 </html>
