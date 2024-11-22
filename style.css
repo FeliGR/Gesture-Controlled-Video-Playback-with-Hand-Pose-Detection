@@ -27,6 +27,10 @@ video {
   transform: scaleX(-1);
 }
 
+drone-video {
+  transform: scaleX(-1);
+}
+
 #canvas {
   position: absolute;
   top: 0;

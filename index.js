@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * @returns {boolean} - True if the finger is curled.
    */
   function isFingerCurled(landmarks, tip, pip, mcp) {
-    return calculateAngle(landmarks[tip], landmarks[pip], landmarks[mcp]) < 65;
+    return calculateAngle(landmarks[tip], landmarks[pip], landmarks[mcp]) < 70; // Adjusted threshold
   }
 
   /**
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     const angleDeg =
       (Math.acos(dotProduct / (magnitudeMCP * magnitudeTip)) * 180) / Math.PI;
-    return angleDeg < 200; // Adjust if necessary
+    return angleDeg < 210; // Adjusted threshold
   }
 
   /**
@@ -210,12 +210,11 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let j = i + 1; j < tips.length; j++) {
         const dx = landmarks[tips[i]].x - landmarks[tips[j]].x;
         const dy = landmarks[tips[i]].y - landmarks[tips[j]].y;
-        const dz = (landmarks[tips[i]].z || 0) - (landmarks[tips[j]].z || 0);
-        totalDist += Math.hypot(dx, dy, dz);
+        totalDist += Math.hypot(dx, dy);
         pairs++;
       }
     }
-    return totalDist / pairs < 30; // Adjust if necessary
+    return totalDist / pairs < 40; // Adjusted
   }
 
   /**
@@ -228,10 +227,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!landmarks) return false;
 
     const fingers = [
-      { tip: 8, pip: 6, mcp: 5 },   // Index finger
-      { tip: 12, pip: 10, mcp: 9 }, // Middle finger
-      { tip: 16, pip: 14, mcp: 13 },// Ring finger
-      { tip: 20, pip: 18, mcp: 17 },// Pinky finger
+      { tip: 8, pip: 6, mcp: 5 },
+      { tip: 12, pip: 10, mcp: 9 },
+      { tip: 16, pip: 14, mcp: 13 },
+      { tip: 20, pip: 18, mcp: 17 },
     ];
 
     for (const { tip, pip, mcp } of fingers) {
