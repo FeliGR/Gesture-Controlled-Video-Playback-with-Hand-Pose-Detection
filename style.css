@@ -214,21 +214,31 @@ canvas {
 
 /* Animations */
 @keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes pulse {
-  0% { 
+  0% {
     opacity: 1;
     box-shadow: 0 0 0 0 rgba(240, 219, 79, 0.7);
   }
-  70% { 
+
+  70% {
     opacity: 0.7;
     box-shadow: 0 0 0 10px rgba(240, 219, 79, 0);
   }
-  100% { 
+
+  100% {
     opacity: 1;
     box-shadow: 0 0 0 0 rgba(240, 219, 79, 0);
   }
@@ -239,16 +249,16 @@ canvas {
   .main-container {
     padding: 1rem;
   }
-  
+
   .cyber-title {
     font-size: 2.5rem;
   }
-  
+
   .video-container {
     width: 400px;
     height: 400px;
   }
-  
+
   .drone-video-container {
     width: 480px;
     height: 270px;
@@ -260,17 +270,17 @@ canvas {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .video-container {
     width: 340px;
     height: 340px;
   }
-  
+
   .drone-video-container {
     width: 90%;
     height: auto;
   }
-  
+
   .cyber-title {
     font-size: 2rem;
   }
