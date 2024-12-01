@@ -1,10 +1,12 @@
-/* Root variables and theme */
+/* Root variables and NASA theme */
 :root {
-  --neon-blue: #00f3ff;
-  --neon-pink: #ff00ff;
-  --cyber-yellow: #f0db4f;
-  --bg-dark: #0a0a0a;
-  --bg-light: rgba(255, 255, 255, 0.05);
+  --nasa-blue: #105bd8;
+  --nasa-red: #fc3d21;
+  --nasa-white: #ffffff;
+  --nasa-grey: #636363;
+  --space-black: #0a0a0a;
+  --control-panel: rgba(16, 91, 216, 0.1);
+  --space-gradient: linear-gradient(45deg, #000000, #001f3f);
 }
 
 /* General Reset */
@@ -17,8 +19,8 @@
 body {
   margin: 0;
   font-family: 'Orbitron', sans-serif;
-  background: var(--bg-dark);
-  color: white;
+  background: var(--space-black);
+  color: var(--nasa-white);
   min-height: 100vh;
   overflow-x: hidden;
   display: flex;
@@ -33,9 +35,9 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, #000000, #1a1a1a);
+  background: var(--space-gradient);
   z-index: -1;
-  animation: gradientBG 15s ease infinite;
+  animation: starfield 15s ease infinite;
 }
 
 /* Main Container */
@@ -62,11 +64,10 @@ body {
 .cyber-title {
   font-size: 3.5rem;
   text-transform: uppercase;
-  background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  color: var(--nasa-white);
+  text-shadow: 0 0 10px rgba(16, 91, 216, 0.5);
   letter-spacing: 2px;
+  font-weight: 700;
 }
 
 .status-indicator {
@@ -75,7 +76,7 @@ body {
   justify-content: center;
   gap: 10px;
   font-size: 1.2rem;
-  color: var(--cyber-yellow);
+  color: var(--nasa-red);
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -83,27 +84,27 @@ body {
 .pulse {
   width: 12px;
   height: 12px;
-  background: var(--cyber-yellow);
+  background: var(--nasa-red);
   border-radius: 50%;
   animation: pulse 2s infinite;
-  box-shadow: 0 0 20px var(--cyber-yellow);
+  box-shadow: 0 0 20px var(--nasa-red);
 }
 
 /* Instructions Grid */
 .instructions-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Change from 3 to 4 columns */
-  gap: 1.5rem; /* Reduce gap to fit all cards */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
   width: 100%;
   margin: 2rem auto;
 }
 
 .instruction-card {
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--control-panel);
   padding: 2rem;
-  border-radius: 15px;
-  border: 1px solid var(--neon-blue);
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+  border-radius: 8px;
+  border: 1px solid var(--nasa-blue);
+  box-shadow: 0 0 20px rgba(16, 91, 216, 0.2);
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   text-align: center;
@@ -111,14 +112,14 @@ body {
 
 .instruction-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
-  border-color: var(--neon-pink);
+  box-shadow: 0 0 30px rgba(16, 91, 216, 0.4);
+  border-color: var(--nasa-red);
 }
 
 .card-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
-  text-shadow: 0 0 10px var(--neon-blue);
+  text-shadow: 0 0 10px var(--nasa-blue);
 }
 
 /* Video Containers */
@@ -126,17 +127,17 @@ body {
   position: relative;
   width: 480px;
   height: 480px;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--control-panel);
   backdrop-filter: blur(5px);
 }
 
 .drone-video-container {
   width: 640px;
   height: 360px;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 20px;
+  background: var(--control-panel);
+  border-radius: 8px;
   overflow: hidden;
   backdrop-filter: blur(5px);
 }
@@ -155,7 +156,7 @@ video#webcam {
 video#drone-video {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 canvas {
@@ -164,23 +165,23 @@ canvas {
   left: 0;
   width: 100% !important;
   height: 100% !important;
-  border-radius: 20px;
+  border-radius: 8px;
   z-index: 2;
 }
 
-/* Cyberpunk Border Effects */
+/* NASA Border Effects */
 .cyberpunk-border {
   position: relative;
-  border: 2px solid var(--neon-blue);
-  box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+  border: 2px solid var(--nasa-blue);
+  box-shadow: 0 0 30px rgba(16, 91, 216, 0.2);
 }
 
 .corner-decoration {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  border: 2px solid var(--neon-pink);
-  box-shadow: 0 0 15px var(--neon-pink);
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--nasa-red);
+  box-shadow: 0 0 15px var(--nasa-red);
 }
 
 .top-left {
@@ -211,17 +212,14 @@ canvas {
   border-top: none;
 }
 
-
 /* Animations */
-@keyframes gradientBG {
+@keyframes starfield {
   0% {
     background-position: 0% 50%;
   }
-
   50% {
     background-position: 100% 50%;
   }
-
   100% {
     background-position: 0% 50%;
   }
@@ -230,17 +228,15 @@ canvas {
 @keyframes pulse {
   0% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(240, 219, 79, 0.7);
+    box-shadow: 0 0 0 0 rgba(252, 61, 33, 0.7);
   }
-
   70% {
     opacity: 0.7;
-    box-shadow: 0 0 0 10px rgba(240, 219, 79, 0);
+    box-shadow: 0 0 0 10px rgba(252, 61, 33, 0);
   }
-
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(240, 219, 79, 0);
+    box-shadow: 0 0 0 0 rgba(252, 61, 33, 0);
   }
 }
 
