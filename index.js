@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const context = canvas.getContext("2d");
     const video = document.querySelector("#drone-video");
 
+    /**
+     * Initializes the application by checking for TensorFlow.js and starting the main loop.
+     */
     async function init() {
         try {
             if (typeof tf === "undefined") {
@@ -37,6 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Main application loop that captures webcam images, estimates hand poses,
+     * and processes gestures to control video playback and volume.
+     */
     async function run() {
         const detector = await setupDetector();
         const webcam = await setupWebcam();
@@ -62,6 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Sets up the hand pose detector using MediaPipe Hands model.
+     * @returns {Promise<Object>} A promise that resolves to the hand pose detector.
+     */
     async function setupDetector() {
         const model = handPoseDetection.SupportedModels.MediaPipeHands;
         const detectorConfig = {
@@ -73,10 +84,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return await handPoseDetection.createDetector(model, detectorConfig);
     }
 
+    /**
+     * Sets up the webcam for image capture.
+     * @returns {Promise<Object>} A promise that resolves to the webcam data source.
+     */
     async function setupWebcam() {
         return await tf.data.webcam(webcamEl);
     }
 
+    /**
+     * Processes the case when two hands are detected.
+     * Draws hand landmarks and adjusts video volume based on gestures.
+     * @param {Array} hands - An array of detected hands.
+     */
     function handleTwoHands(hands) {
         const [leftHand, rightHand] = getHandsBySide(hands);
         drawHandLandmarks(context, leftHand.keypoints);
@@ -89,6 +109,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Processes the case when one hand is detected.
+     * Draws hand landmarks and controls video playback based on gestures.
+     * @param {Object} hand - The detected hand object.
+     */
     function handleOneHand(hand) {
         const landmarks = hand.keypoints;
         drawHandLandmarks(context, landmarks);
@@ -106,18 +131,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Resets the state variables used for gesture detection.
+     */
     function resetStates() {
         fistFrames = 0;
         previousPositions = [];
         previousYPositions = [];
     }
 
+    /**
+     * Separates the detected hands into left and right hands.
+     * @param {Array} hands - An array of detected hands.
+     * @returns {Array} An array containing the left and right hand objects.
+     */
     function getHandsBySide(hands) {
         const leftHand = hands.find(h => h.handedness === 'Left') || hands[0];
         const rightHand = hands.find(h => h.handedness === 'Right') || hands[1];
         return [leftHand, rightHand];
     }
 
+    /**
+     * Draws the hand landmarks and connections on the canvas.
+     * @param {CanvasRenderingContext2D} context - The drawing context.
+     * @param {Array} landmarks - The array of hand landmark points.
+     */
     function drawHandLandmarks(context, landmarks) {
         context.lineWidth = 2;
         context.strokeStyle = "blue";
@@ -136,6 +174,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    /**
+     * Draws a circle at the specified coordinates.
+     * @param {CanvasRenderingContext2D} context - The drawing context.
+     * @param {number} cx - The x-coordinate of the center.
+     * @param {number} cy - The y-coordinate of the center.
+     * @param {number} radius - The radius of the circle.
+     * @param {string} color - The color of the circle.
+     */
     function drawCircle(context, cx, cy, radius, color) {
         context.beginPath();
         context.arc(cx, cy, radius, 0, 2 * Math.PI);
@@ -145,6 +191,10 @@ document.addEventListener("DOMContentLoaded", () => {
         context.stroke();
     }
 
+    /**
+     * Adjusts the video volume based on the vertical movement of the index finger tip.
+     * @param {Object} indexFingerTip - The landmark point of the index finger tip.
+     */
     function adjustVolume(indexFingerTip) {
         previousYPositions.push(indexFingerTip.y);
 
@@ -168,6 +218,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Handles the fist gesture to pause and hide the video after a threshold.
+     */
     function handleFistGesture() {
         fistFrames++;
         if (fistFrames >= FIST_DETECTION_THRESHOLD && video) {
@@ -176,6 +229,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Controls video playback (fast forward or rewind) based on horizontal wrist movement.
+     * @param {Object} wrist - The landmark point of the wrist.
+     */
     function controlVideoPlayback(wrist) {
         previousPositions.push(wrist.x);
 
@@ -200,12 +257,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Gesture detection functions
+
+    /**
+     * Determines if the hand is open (all fingers extended and thumb extended).
+     * @param {Object} hand - The detected hand object.
+     * @returns {boolean} True if the hand is open, false otherwise.
+     */
     function isHandOpen(hand) {
         const landmarks = hand.keypoints;
         if (!landmarks) return false;
         return areFingersExtended(landmarks) && isThumbExtended(landmarks);
     }
 
+    /**
+     * Determines if the hand is making a pointing left gesture.
+     * Index finger extended, other fingers curled, thumb curled.
+     * @param {Array} landmarks - The array of hand landmark points.
+     * @returns {boolean} True if pointing left, false otherwise.
+     */
     function isPointingLeft(landmarks) {
         if (!isFingerExtended(landmarks, 8, 6, 5)) return false;
 
@@ -222,6 +291,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return isThumbCurled(landmarks);
     }
 
+    /**
+     * Determines if the hand is making a fist gesture.
+     * All fingers and thumb curled, fingers close together.
+     * @param {Object} hand - The detected hand object.
+     * @returns {boolean} True if fist gesture is detected, false otherwise.
+     */
     function isFist(hand) {
         const landmarks = hand.keypoints;
         if (!landmarks) return false;
@@ -240,6 +315,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return isThumbCurled(landmarks) && areFingersClose(landmarks);
     }
 
+    /**
+     * Determines if the palm is facing left using 3D landmarks.
+     * @param {Object} hand - The detected hand object.
+     * @returns {boolean} True if the palm is facing left, false otherwise.
+     */
     function isPalmFacingLeft(hand) {
         const landmarks = hand.keypoints3D;
         if (!landmarks || landmarks.length === 0) return false;
@@ -275,14 +355,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Utility functions
+
+    /**
+     * Determines if a finger is extended based on the angles between joints.
+     * @param {Array} landmarks - The array of hand landmark points.
+     * @param {number} tip - The index of the fingertip landmark.
+     * @param {number} pip - The index of the PIP joint landmark.
+     * @param {number} mcp - The index of the MCP joint landmark.
+     * @returns {boolean} True if the finger is extended, false otherwise.
+     */
     function isFingerExtended(landmarks, tip, pip, mcp) {
         return calculateAngle(landmarks[tip], landmarks[pip], landmarks[mcp]) > 160;
     }
 
+    /**
+     * Determines if a finger is curled based on the angles between joints.
+     * @param {Array} landmarks - The array of hand landmark points.
+     * @param {number} tip - The index of the fingertip landmark.
+     * @param {number} pip - The index of the PIP joint landmark.
+     * @param {number} mcp - The index of the MCP joint landmark.
+     * @returns {boolean} True if the finger is curled, false otherwise.
+     */
     function isFingerCurled(landmarks, tip, pip, mcp) {
         return calculateAngle(landmarks[tip], landmarks[pip], landmarks[mcp]) < 70;
     }
 
+    /**
+     * Determines if the thumb is extended based on the angle between joints.
+     * @param {Array} landmarks - The array of hand landmark points.
+     * @returns {boolean} True if the thumb is extended, false otherwise.
+     */
     function isThumbExtended(landmarks) {
         const tip = landmarks[4];
         const mcp = landmarks[2];
@@ -291,6 +393,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return angle > 150;
     }
 
+    /**
+     * Determines if the thumb is curled based on the angle between joints.
+     * @param {Array} landmarks - The array of hand landmark points.
+     * @returns {boolean} True if the thumb is curled, false otherwise.
+     */
     function isThumbCurled(landmarks) {
         const wrist = landmarks[0];
         const mcp = landmarks[2];
@@ -319,12 +426,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return angleDeg < 210;
     }
 
+    /**
+     * Determines if all fingers (except thumb) are extended.
+     * @param {Array} landmarks - The array of hand landmark points.
+     * @returns {boolean} True if all fingers are extended, false otherwise.
+     */
     function areFingersExtended(landmarks) {
         const fingers = [
-            { tip: 8, pip: 6, mcp: 5 },
-            { tip: 12, pip: 10, mcp: 9 },
-            { tip: 16, pip: 14, mcp: 13 },
-            { tip: 20, pip: 18, mcp: 17 }
+            { tip: 8, pip: 6, mcp: 5 },    // Index finger
+            { tip: 12, pip: 10, mcp: 9 },  // Middle finger
+            { tip: 16, pip: 14, mcp: 13 }, // Ring finger
+            { tip: 20, pip: 18, mcp: 17 }  // Pinky finger
         ];
 
         for (const { tip, pip, mcp } of fingers) {
@@ -333,6 +445,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
+    /**
+     * Determines if the fingertips are close together (for fist detection).
+     * @param {Array} landmarks - The array of hand landmark points.
+     * @returns {boolean} True if the fingers are close, false otherwise.
+     */
     function areFingersClose(landmarks) {
         const tips = [8, 12, 16, 20];
         let totalDist = 0;
@@ -349,6 +466,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return totalDist / pairs < 40;
     }
 
+    /**
+     * Calculates the angle between three points (in degrees).
+     * @param {Object} a - The first point.
+     * @param {Object} b - The middle point (vertex).
+     * @param {Object} c - The third point.
+     * @returns {number} The angle in degrees.
+     */
     function calculateAngle(a, b, c) {
         const ab = { x: a.x - b.x, y: a.y - b.y };
         const cb = { x: c.x - b.x, y: c.y - b.y };
