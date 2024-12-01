@@ -92,8 +92,8 @@ body {
 /* Instructions Grid */
 .instructions-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr); /* Change from 3 to 4 columns */
+  gap: 1.5rem; /* Reduce gap to fit all cards */
   width: 100%;
   margin: 2rem auto;
 }

@@ -38,19 +38,60 @@ document.addEventListener("DOMContentLoaded", () => {
         const MAX_BUFFER_SIZE = 5;
         const MOVEMENT_THRESHOLD = 20;
 
+        // New variables for volume control
+        let previousYPositions = [];
+        let lastVolumeUpdate = 0;
+        const VOLUME_UPDATE_DELAY = 100;
+        const VOLUME_CHANGE_STEP = 0.5;
+
         while (true) {
             const img = await webcam.capture();
             const hands = await detector.estimateHands(img, { flipHorizontal: true });
-
-            // Clear previous drawings
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (hands.length > 0) {
-                const hand = hands[0]; // Tomamos la primera mano detectada
+            if (hands.length === 2) {
+                // Handle two hands case (volume control)
+                const leftHand = hands.find(h => h.handedness === 'Left') || hands[0];
+                const rightHand = hands.find(h => h.handedness === 'Right') || hands[1];
+
+                drawHandLandmarks(context, leftHand.keypoints);
+                drawHandLandmarks(context, rightHand.keypoints);
+
+                if (isHandOpen(leftHand) && isPointingLeft(rightHand.keypoints)) {
+                    const rightIndex = rightHand.keypoints[8];
+                    previousYPositions.push(rightIndex.y);
+
+                    if (previousYPositions.length > MAX_BUFFER_SIZE) {
+                        previousYPositions.shift();
+                    }
+
+                    if (previousYPositions.length === MAX_BUFFER_SIZE) {
+                        const now = Date.now();
+                        if (now - lastVolumeUpdate > VOLUME_UPDATE_DELAY) {
+                            const deltaY = previousYPositions[0] - previousYPositions[previousYPositions.length - 1];
+
+                            if (Math.abs(deltaY) > MOVEMENT_THRESHOLD) {
+                                const video = document.querySelector("#drone-video");
+                                if (video) {
+                                    const volumeChange = deltaY > 0 ? VOLUME_CHANGE_STEP : -VOLUME_CHANGE_STEP;
+                                    video.volume = Math.max(0, Math.min(1, video.volume + volumeChange));
+                                    console.log(`Volume: ${video.volume.toFixed(2)}`);
+                                    lastVolumeUpdate = now;
+                                    previousYPositions = [];
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    previousYPositions = [];
+                }
+
+            } else if (hands.length === 1) {
+                // Handle single hand cases (existing functionality)
+                const hand = hands[0];
                 const landmarks = hand.keypoints;
                 drawHandLandmarks(context, landmarks);
 
-                // Punto 2: Detectar puño para cerrar el video
                 if (isFist(hand)) {
                     fistFrames++;
                     if (fistFrames >= FIST_DETECTION_THRESHOLD) {
@@ -64,12 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     fistFrames = 0;
                 }
 
-                // Punto 1: Mover el video adelante o atrás
                 if (isHandOpen(hand) && isPalmFacingLeft(hand)) {
-                    const wrist = hand.keypoints[0]; // Muñeca
+                    const wrist = hand.keypoints[0];
                     previousPositions.push(wrist.x);
 
-                    // Mantener el tamaño del buffer
                     if (previousPositions.length > MAX_BUFFER_SIZE) {
                         previousPositions.shift();
                     }
@@ -81,30 +120,48 @@ document.addEventListener("DOMContentLoaded", () => {
                             const video = document.querySelector("#drone-video");
                             if (video) {
                                 if (deltaX > 0) {
-                                    video.currentTime += 5; // Avanzar 2 segundos
+                                    video.currentTime += 5;
                                     console.log("Avanzar video");
                                 } else {
-                                    video.currentTime -= 5; // Retroceder 2 segundos
+                                    video.currentTime -= 5;
                                     console.log("Retroceder video");
                                 }
                             }
-                            // Reiniciar el buffer después de realizar la acción
                             previousPositions = [];
                         }
                     }
                 } else {
-                    // Reiniciar el buffer si no se detecta la mano abierta con la palma hacia la izquierda
                     previousPositions = [];
                 }
             } else {
                 fistFrames = 0;
                 previousPositions = [];
+                previousYPositions = [];
             }
 
             img.dispose();
             await tf.nextFrame();
         }
     }
+
+    // Add new function for pointing gesture
+    function isPointingLeft(landmarks) {
+        // Index extended, others curled
+        if (!isFingerExtended(landmarks, 8, 6, 5)) return false;
+        
+        const otherFingers = [
+            { tip: 12, pip: 10, mcp: 9 },  // Middle
+            { tip: 16, pip: 14, mcp: 13 }, // Ring
+            { tip: 20, pip: 18, mcp: 17 }  // Pinky
+        ];
+        
+        for (const { tip, pip, mcp } of otherFingers) {
+            if (!isFingerCurled(landmarks, tip, pip, mcp)) return false;
+        }
+        
+        return isThumbCurled(landmarks);
+    }
+
 
     function drawHandLandmarks(context, landmarks) {
         const connections = [
