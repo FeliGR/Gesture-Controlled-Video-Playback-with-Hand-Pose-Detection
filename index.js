@@ -26,19 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const detector = await handPoseDetection.createDetector(model, detectorConfig);
         const webcam = await tf.data.webcam(webcamEl);
 
-        // Set canvas dimensions
+
         canvas.width = webcamEl.videoWidth || 640;
         canvas.height = webcamEl.videoHeight || 480;
 
         let fistFrames = 0;
         const FIST_DETECTION_THRESHOLD = 5;
 
-        // Variables para el Punto 1
+
         let previousPositions = [];
         const MAX_BUFFER_SIZE = 5;
         const MOVEMENT_THRESHOLD = 20;
 
-        // New variables for volume control
+
         let previousYPositions = [];
         let lastVolumeUpdate = 0;
         const VOLUME_UPDATE_DELAY = 100;
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             if (hands.length === 2) {
-                // Handle two hands case (volume control)
+
                 const leftHand = hands.find(h => h.handedness === 'Left') || hands[0];
                 const rightHand = hands.find(h => h.handedness === 'Right') || hands[1];
 
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
             } else if (hands.length === 1) {
-                // Handle single hand cases (existing functionality)
+
                 const hand = hands[0];
                 const landmarks = hand.keypoints;
                 drawHandLandmarks(context, landmarks);
@@ -144,36 +144,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Add new function for pointing gesture
+
     function isPointingLeft(landmarks) {
-        // Index extended, others curled
+
         if (!isFingerExtended(landmarks, 8, 6, 5)) return false;
-        
+
         const otherFingers = [
-            { tip: 12, pip: 10, mcp: 9 },  // Middle
-            { tip: 16, pip: 14, mcp: 13 }, // Ring
-            { tip: 20, pip: 18, mcp: 17 }  // Pinky
+            { tip: 12, pip: 10, mcp: 9 },
+            { tip: 16, pip: 14, mcp: 13 },
+            { tip: 20, pip: 18, mcp: 17 }
         ];
-        
+
         for (const { tip, pip, mcp } of otherFingers) {
             if (!isFingerCurled(landmarks, tip, pip, mcp)) return false;
         }
-        
+
         return isThumbCurled(landmarks);
     }
 
 
     function drawHandLandmarks(context, landmarks) {
         const connections = [
-            [0, 1], [1, 2], [2, 3], [3, 4],     // Thumb
-            [0, 5], [5, 6], [6, 7], [7, 8],     // Index
-            [5, 9], [9, 10], [10, 11], [11, 12], // Middle
-            [9, 13], [13, 14], [14, 15], [15, 16], // Ring
-            [13, 17], [17, 18], [18, 19], [19, 20], // Pinky
-            [0, 5], [5, 9], [9, 13], [13, 17], [17, 0] // Palm
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            [5, 9], [9, 10], [10, 11], [11, 12],
+            [9, 13], [13, 14], [14, 15], [15, 16],
+            [13, 17], [17, 18], [18, 19], [19, 20],
+            [0, 5], [5, 9], [9, 13], [13, 17], [17, 0]
         ];
 
-        // Draw connections
+
         context.lineWidth = 2;
         context.strokeStyle = "blue";
 
@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
             context.stroke();
         });
 
-        // Draw landmarks
+
         landmarks.forEach(({ x, y }) => {
             drawCircle(context, x, y, 3, "red");
         });
@@ -229,10 +229,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function areFingersExtended(landmarks) {
         const fingers = [
-            { tip: 8, pip: 6, mcp: 5 },   // Index
-            { tip: 12, pip: 10, mcp: 9 }, // Middle
-            { tip: 16, pip: 14, mcp: 13 }, // Ring
-            { tip: 20, pip: 18, mcp: 17 }  // Pinky
+            { tip: 8, pip: 6, mcp: 5 },
+            { tip: 12, pip: 10, mcp: 9 },
+            { tip: 16, pip: 14, mcp: 13 },
+            { tip: 20, pip: 18, mcp: 17 }
         ];
 
         for (const { tip, pip, mcp } of fingers) {
@@ -246,10 +246,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!landmarks) return false;
 
         const fingers = [
-            { tip: 8, pip: 6, mcp: 5 },   // Index
-            { tip: 12, pip: 10, mcp: 9 }, // Middle
-            { tip: 16, pip: 14, mcp: 13 }, // Ring
-            { tip: 20, pip: 18, mcp: 17 }  // Pinky
+            { tip: 8, pip: 6, mcp: 5 },
+            { tip: 12, pip: 10, mcp: 9 },
+            { tip: 16, pip: 14, mcp: 13 },
+            { tip: 20, pip: 18, mcp: 17 }
         ];
 
         for (const { tip, pip, mcp } of fingers) {
@@ -330,20 +330,20 @@ document.addEventListener("DOMContentLoaded", () => {
             z: pinkyMCP.z - wrist.z
         };
 
-        // Calcular el vector normal (producto cruzado de vector1 y vector2)
+
         const normal = {
             x: vector1.y * vector2.z - vector1.z * vector2.y,
             y: vector1.z * vector2.x - vector1.x * vector2.z,
             z: vector1.x * vector2.y - vector1.y * vector2.x
         };
 
-        // Normalizar el vector normal
+
         const magnitude = Math.hypot(normal.x, normal.y, normal.z);
         normal.x /= magnitude;
         normal.y /= magnitude;
         normal.z /= magnitude;
 
-        // Verificar si la componente x está cerca de 1 (palma hacia la izquierda)
+
         return normal.x > 0.5;
     }
 
