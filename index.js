@@ -27,11 +27,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const webcam = await tf.data.webcam(webcamEl);
 
         // Set canvas dimensions
-        canvas.width = webcamEl.videoWidth || 300;
-        canvas.height = webcamEl.videoHeight || 300;
+        canvas.width = webcamEl.videoWidth || 640;
+        canvas.height = webcamEl.videoHeight || 480;
 
         let fistFrames = 0;
         const FIST_DETECTION_THRESHOLD = 5;
+
+        // Variables para el Punto 1
+        let previousPositions = [];
+        const MAX_BUFFER_SIZE = 5;
+        const MOVEMENT_THRESHOLD = 20;
 
         while (true) {
             const img = await webcam.capture();
@@ -41,25 +46,59 @@ document.addEventListener("DOMContentLoaded", () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             if (hands.length > 0) {
-                hands.forEach((hand) => {
-                    const landmarks = hand.keypoints;
-                    drawHandLandmarks(context, landmarks);
+                const hand = hands[0]; // Tomamos la primera mano detectada
+                const landmarks = hand.keypoints;
+                drawHandLandmarks(context, landmarks);
 
-                    if (isFist(hand)) {
-                        fistFrames++;
-                        if (fistFrames >= FIST_DETECTION_THRESHOLD) {
+                // Punto 2: Detectar puño para cerrar el video
+                if (isFist(hand)) {
+                    fistFrames++;
+                    if (fistFrames >= FIST_DETECTION_THRESHOLD) {
+                        const video = document.querySelector("#drone-video");
+                        if (video) {
+                            video.pause();
+                            video.style.display = "none";
+                        }
+                    }
+                } else {
+                    fistFrames = 0;
+                }
+
+                // Punto 1: Mover el video adelante o atrás
+                if (isHandOpen(hand) && isPalmFacingLeft(hand)) {
+                    const wrist = hand.keypoints[0]; // Muñeca
+                    previousPositions.push(wrist.x);
+
+                    // Mantener el tamaño del buffer
+                    if (previousPositions.length > MAX_BUFFER_SIZE) {
+                        previousPositions.shift();
+                    }
+
+                    if (previousPositions.length === MAX_BUFFER_SIZE) {
+                        const deltaX = previousPositions[previousPositions.length - 1] - previousPositions[0];
+
+                        if (Math.abs(deltaX) > MOVEMENT_THRESHOLD) {
                             const video = document.querySelector("#drone-video");
                             if (video) {
-                                video.pause();
-                                video.style.display = "none";
+                                if (deltaX > 0) {
+                                    video.currentTime += 5; // Avanzar 2 segundos
+                                    console.log("Avanzar video");
+                                } else {
+                                    video.currentTime -= 5; // Retroceder 2 segundos
+                                    console.log("Retroceder video");
+                                }
                             }
+                            // Reiniciar el buffer después de realizar la acción
+                            previousPositions = [];
                         }
-                    } else {
-                        fistFrames = 0;
                     }
-                });
+                } else {
+                    // Reiniciar el buffer si no se detecta la mano abierta con la palma hacia la izquierda
+                    previousPositions = [];
+                }
             } else {
                 fistFrames = 0;
+                previousPositions = [];
             }
 
             img.dispose();
@@ -71,9 +110,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const connections = [
             [0, 1], [1, 2], [2, 3], [3, 4],     // Thumb
             [0, 5], [5, 6], [6, 7], [7, 8],     // Index
-            [0, 9], [9, 10], [10, 11], [11, 12], // Middle
-            [0, 13], [13, 14], [14, 15], [15, 16], // Ring
-            [0, 17], [17, 18], [18, 19], [19, 20], // Pinky
+            [5, 9], [9, 10], [10, 11], [11, 12], // Middle
+            [9, 13], [13, 14], [14, 15], [15, 16], // Ring
+            [13, 17], [17, 18], [18, 19], [19, 20], // Pinky
+            [0, 5], [5, 9], [9, 13], [13, 17], [17, 0] // Palm
         ];
 
         // Draw connections
@@ -105,17 +145,61 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function calculateAngle(a, b, c) {
-        const ab = { x: a.x - b.x, y: a.y - b.y, z: (a.z || 0) - (b.z || 0) };
-        const cb = { x: c.x - b.x, y: c.y - b.y, z: (c.z || 0) - (b.z || 0) };
-        const dotProduct = ab.x * cb.x + ab.y * cb.y + ab.z * cb.z;
-        const magnitudeAB = Math.hypot(ab.x, ab.y, ab.z);
-        const magnitudeCB = Math.hypot(cb.x, cb.y, cb.z);
+        const ab = { x: a.x - b.x, y: a.y - b.y };
+        const cb = { x: c.x - b.x, y: c.y - b.y };
+        const dotProduct = ab.x * cb.x + ab.y * cb.y;
+        const magnitudeAB = Math.hypot(ab.x, ab.y);
+        const magnitudeCB = Math.hypot(cb.x, cb.y);
         const angleRad = Math.acos(dotProduct / (magnitudeAB * magnitudeCB));
         return (angleRad * 180) / Math.PI;
     }
 
     function isFingerCurled(landmarks, tip, pip, mcp) {
         return calculateAngle(landmarks[tip], landmarks[pip], landmarks[mcp]) < 70;
+    }
+
+    function isFingerExtended(landmarks, tip, pip, mcp) {
+        return calculateAngle(landmarks[tip], landmarks[pip], landmarks[mcp]) > 160;
+    }
+
+    function isThumbExtended(landmarks) {
+        const tip = landmarks[4];
+        const mcp = landmarks[2];
+        const wrist = landmarks[0];
+        const angle = calculateAngle(tip, mcp, wrist);
+        return angle > 150;
+    }
+
+    function areFingersExtended(landmarks) {
+        const fingers = [
+            { tip: 8, pip: 6, mcp: 5 },   // Index
+            { tip: 12, pip: 10, mcp: 9 }, // Middle
+            { tip: 16, pip: 14, mcp: 13 }, // Ring
+            { tip: 20, pip: 18, mcp: 17 }  // Pinky
+        ];
+
+        for (const { tip, pip, mcp } of fingers) {
+            if (!isFingerExtended(landmarks, tip, pip, mcp)) return false;
+        }
+        return true;
+    }
+
+    function isFist(hand) {
+        const landmarks = hand.keypoints;
+        if (!landmarks) return false;
+
+        const fingers = [
+            { tip: 8, pip: 6, mcp: 5 },   // Index
+            { tip: 12, pip: 10, mcp: 9 }, // Middle
+            { tip: 16, pip: 14, mcp: 13 }, // Ring
+            { tip: 20, pip: 18, mcp: 17 }  // Pinky
+        ];
+
+        for (const { tip, pip, mcp } of fingers) {
+            if (!isFingerCurled(landmarks, tip, pip, mcp)) return false;
+        }
+
+        return isThumbCurled(landmarks) && areFingersClose(landmarks)
     }
 
     function isThumbCurled(landmarks) {
@@ -162,22 +246,48 @@ document.addEventListener("DOMContentLoaded", () => {
         return totalDist / pairs < 40;
     }
 
-    function isFist(hand) {
-        const landmarks = hand.keypoints3D || hand.keypoints;
+    function isHandOpen(hand) {
+        const landmarks = hand.keypoints;
         if (!landmarks) return false;
 
-        const fingers = [
-            { tip: 8, pip: 6, mcp: 5 },   // Index
-            { tip: 12, pip: 10, mcp: 9 }, // Middle
-            { tip: 16, pip: 14, mcp: 13 }, // Ring
-            { tip: 20, pip: 18, mcp: 17 }  // Pinky
-        ];
+        return areFingersExtended(landmarks) && isThumbExtended(landmarks);
+    }
 
-        for (const { tip, pip, mcp } of fingers) {
-            if (!isFingerCurled(landmarks, tip, pip, mcp)) return false;
-        }
+    function isPalmFacingLeft(hand) {
+        const landmarks = hand.keypoints3D;
+        if (!landmarks || landmarks.length === 0) return false;
 
-        return isThumbCurled(landmarks) && areFingersClose(landmarks);
+        const wrist = landmarks[0];
+        const indexMCP = landmarks[5];
+        const pinkyMCP = landmarks[17];
+
+        const vector1 = {
+            x: indexMCP.x - wrist.x,
+            y: indexMCP.y - wrist.y,
+            z: indexMCP.z - wrist.z
+        };
+
+        const vector2 = {
+            x: pinkyMCP.x - wrist.x,
+            y: pinkyMCP.y - wrist.y,
+            z: pinkyMCP.z - wrist.z
+        };
+
+        // Calcular el vector normal (producto cruzado de vector1 y vector2)
+        const normal = {
+            x: vector1.y * vector2.z - vector1.z * vector2.y,
+            y: vector1.z * vector2.x - vector1.x * vector2.z,
+            z: vector1.x * vector2.y - vector1.y * vector2.x
+        };
+
+        // Normalizar el vector normal
+        const magnitude = Math.hypot(normal.x, normal.y, normal.z);
+        normal.x /= magnitude;
+        normal.y /= magnitude;
+        normal.z /= magnitude;
+
+        // Verificar si la componente x está cerca de 1 (palma hacia la izquierda)
+        return normal.x > 0.5;
     }
 
     initApp();
