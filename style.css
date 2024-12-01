@@ -40,6 +40,33 @@ body {
   animation: starfield 15s ease infinite;
 }
 
+/* Add stars to the background */
+.background-animation::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image:
+    radial-gradient(white 1px, transparent 1px),
+    radial-gradient(white 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: 0 0, 25px 25px;
+  opacity: 0.2;
+  animation: star-move 50s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes star-move {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-500px, -500px);
+  }
+}
+
 /* Main Container */
 .main-container {
   display: flex;
@@ -237,6 +264,15 @@ canvas {
   100% {
     opacity: 1;
     box-shadow: 0 0 0 0 rgba(252, 61, 33, 0);
+  }
+}
+
+@keyframes star-move {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-500px, -500px);
   }
 }
 

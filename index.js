@@ -117,17 +117,29 @@ document.addEventListener("DOMContentLoaded", () => {
     function handleOneHand(hand) {
         const landmarks = hand.keypoints;
         drawHandLandmarks(context, landmarks);
-
+    
         if (isFist(hand)) {
             handleFistGesture();
         } else {
             fistFrames = 0;
+            if (hand.handedness === 'Right' && isHandOpen(hand)) {
+                handleOpenHandGesture();
+            }
         }
-
+    
         if (isHandOpen(hand) && isPalmFacingLeft(hand)) {
             controlVideoPlayback(landmarks[0]);
         } else {
             previousPositions = [];
+        }
+    }
+
+    function handleOpenHandGesture() {
+        if (video) {
+            video.style.display = "block";
+            if (video.paused) {
+                video.play();
+            }
         }
     }
 
