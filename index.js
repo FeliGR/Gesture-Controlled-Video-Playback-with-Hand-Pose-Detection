@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const landmarks = hand.keypoints;
         drawHandLandmarks(context, landmarks);
     
-        if (isFist(hand)) {
+        if (hand.handedness === 'Right' && isFist(hand)) {
             handleFistGesture();
         } else {
             fistFrames = 0;
